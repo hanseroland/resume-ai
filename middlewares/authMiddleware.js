@@ -1,39 +1,42 @@
+// authMiddleware.js
+
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const User = require('../models/User');
 dotenv.config();
 
-module.exports =  async function (req, res, next) {
+module.exports = async function (req, res, next) {
     try {
-        const authorizationHeader = req.header('authorization');
-        if (!authorizationHeader) {
-            return res.status(401).send({ 
+        // ✅ Lire le cookie nommé "token"
+        const token = req.cookies?.token;
+
+        if (!token) {
+            return res.status(401).json({
                 success: false,
-                message: 'Authorization header missing'
+                message: 'Token manquant (non trouvé dans le cookie)',
             });
         }
 
-        
-        const token = authorizationHeader.replace("Bearer ", "");
-        const decryptedData = jwt.verify(token, process.env.JWT_SECRET);
+        // ✅ Vérifier le token
+        const payload = jwt.verify(token, process.env.JWT_SECRET);
 
-        const user = await User.findById(decryptedData.userId);
 
-       // console.log("affiche use middle :",user)
+        const user = await User.findById(payload.userId);
+
         if (!user) {
             return res.status(404).json({
                 success: false,
                 message: 'Utilisateur introuvable.',
             });
         }
+        req.user = { userId: payload.userId, role: user.role };
 
-        req.user = { userId: decryptedData.userId };
-        //console.log("middleware", decryptedData.userId);
         next();
     } catch (error) {
-        return res.status(401).send({ 
+        console.error("Middleware Erreur DÉTAILLÉE:", error);
+        return res.status(401).send({
             success: false,
-            message: 'Token Invalid'
+            message: `Authentication failed: ${error.message}`
         });
     }
 };

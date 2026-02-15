@@ -1,3 +1,5 @@
+//server/routes/authRoutes.js
+
 const User = require('../models/User')
 const express = require('express')
 const router = express.Router()
@@ -95,7 +97,7 @@ router.post('/login', async (req, res) => {
     );
 
     const cookieDomain = process.env.NODE_ENV === 'production'
-      ? 'https://resume-ai-frontend-mu.vercel.app/'
+      ? 'resume-ai-frontend-mu.vercel.app'
       : 'localhost';
 
     res.cookie('token', token, {
@@ -131,7 +133,7 @@ router.post('/login', async (req, res) => {
 
 router.post('/logout', (req, res) => {
   const cookieDomain = process.env.NODE_ENV === 'production'
-    ? 'https://resume-ai-frontend-mu.vercel.app/'
+    ? 'resume-ai-frontend-mu.vercel.app'
     : 'localhost';
 
   res.clearCookie("token", {

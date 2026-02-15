@@ -5,6 +5,7 @@ const resumeSchema = new mongoose.Schema({
   title: { type: String, required: true },
   theme: { type: Number },
   title: { type: String },
+  categorie: { type: String },
   personalInfo: {
     fullName: { type: String },
     jobTitle: { type: String, },

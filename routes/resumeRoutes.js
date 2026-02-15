@@ -81,6 +81,190 @@ router.get('/user/:userId', async (req, res) => {
 
 })
 
+// Récupérer les 3 derniers CV d'un utilisateur donné
+router.get('/user/:userId/latest', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    // Vérification de l'existence de l'utilisateur
+    const findUser = await User.findById(userId);
+    if (!findUser) {
+      return res.status(404).send({
+        success: false,
+        message: 'Aucun utilisateur trouvé'
+      });
+    }
+
+    // Récupération des 3 derniers CV
+    const latestResumes = await Resume.find({ userId: userId })
+      .sort({ createdAt: -1 })
+      .limit(3);
+
+    // Si la liste est vide (mais l'utilisateur existe), on renvoie un succès avec un tableau vide
+    res.status(200).send({
+      success: true,
+      message: 'Les 3 derniers CV ont été récupérés avec succès',
+      data: latestResumes
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la récupération des CV',
+      error: error.message
+    });
+  }
+});
+
+// Compter les CV d'un utilisateur spécifique
+router.get('/user/count/:userId', async (req, res) => {
+  try {
+    const count = await Resume.countDocuments({ userId: req.params.userId });
+    res.status(200).send({
+      success: true,
+      message: 'Nombre de CV récupéré avec succès',
+      count: count
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+
+// Compter TOUS les CV de la plateforme (pour admin)
+router.get('/count/all', async (req, res) => {
+  try {
+    const count = await Resume.countDocuments();
+    res.status(200).send({
+      success: true,
+      message: 'Nombre de CV récupéré avec succès',
+      count: count
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+
+// Compter les CV par mois pour l'année en cours
+router.get('/stats/monthly', async (req, res) => {
+  try {
+    const currentYear = new Date().getFullYear();
+
+    const stats = await Resume.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(`${currentYear}-01-01`),
+            $lte: new Date(`${currentYear}-12-31`)
+          }
+        }
+      },
+      {
+        $group: {
+          _id: { $month: "$createdAt" },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { "_id": 1 } } // Trie par mois (1 à 12)
+    ]);
+
+    res.status(200).json({ success: true, year: currentYear, data: stats });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Compter les CV créés au cours de la dernière semaine, regroupés par jour
+router.get('/stats/weekly-activity', async (req, res) => {
+  try {
+
+    // 1. Calculer la date d'il y a 7 jours
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+
+    // 2. Pipeline d'agrégation
+    const stats = await Resume.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: sevenDaysAgo }
+        }
+      },
+      {
+        $group: {
+          _id: { $dayOfWeek: "$createdAt" }, // Renvoie 1 (Dim) à 7 (Sam)
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { "_id": 1 } }
+    ]);
+
+    // 3. Formater les données pour Recharts (Mapper les jours)
+    const daysMap = {
+      1: 'Dim', 2: 'Lun', 3: 'Mar', 4: 'Mer', 5: 'Jeu', 6: 'Ven', 7: 'Sam'
+    };
+
+    // On initialise un tableau avec tous les jours à 0
+    const formattedData = Object.keys(daysMap).map(dayNum => {
+      const dayData = stats.find(s => s._id === parseInt(dayNum));
+      return {
+        day: daysMap[dayNum],
+        value: dayData ? dayData.count : 0
+      };
+    });
+
+    // Optionnel : Réorganiser pour que le tableau commence par "Lun" et finisse par "Dim"
+    const reorderedData = [
+      ...formattedData.slice(1), // Lun à Sam
+      formattedData[0]           // Dim
+    ];
+
+    res.status(200).json({
+      success: true,
+      data: reorderedData
+    });
+
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// calculer la performance hebdomadaire en comparant le nombre de CV créés cette semaine par rapport à la semaine précédente
+router.get('/stats/weekly-performance', async (req, res) => {
+  try {
+    const now = new Date();
+    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+
+    // 1. Compter les CV de cette semaine
+    const currentWeekCount = await Resume.countDocuments({
+      createdAt: { $gte: oneWeekAgo, $lte: now }
+    });
+
+    // 2. Compter les CV de la semaine dernière
+    const lastWeekCount = await Resume.countDocuments({
+      createdAt: { $gte: twoWeeksAgo, $lt: oneWeekAgo }
+    });
+
+    // 3. Calcul du pourcentage de performance
+    let performance = 0;
+    if (lastWeekCount > 0) {
+      performance = ((currentWeekCount - lastWeekCount) / lastWeekCount) * 100;
+    } else if (currentWeekCount > 0) {
+      performance = 100; // Si 0 CV la semaine dernière, on considère 100% de progression
+    }
+
+    res.status(200).json({
+      success: true,
+      currentWeekCount,
+      performance: Math.round(performance) // On arrondit pour le design
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 //Route pour créer un nouveau CV
 router.post('/create', async (req, res) => {
 

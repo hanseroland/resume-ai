@@ -97,7 +97,7 @@ router.post('/login', async (req, res) => {
     );
 
     const cookieDomain = process.env.NODE_ENV === 'production'
-      ? 'resume-ai-frontend-mu.vercel.app'
+      ? '.hanseroland.com'
       : 'localhost';
 
     res.cookie('token', token, {
@@ -106,7 +106,7 @@ router.post('/login', async (req, res) => {
       sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax', // 'None' en production pour CORS, 'Lax' en local est plus sécurisé
       expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
       path: '/',
-      domain: cookieDomain // ✅ Active cette ligne !
+      domain: cookieDomain
     });
 
     // console.log("vérification token",token)
@@ -133,7 +133,7 @@ router.post('/login', async (req, res) => {
 
 router.post('/logout', (req, res) => {
   const cookieDomain = process.env.NODE_ENV === 'production'
-    ? 'resume-ai-frontend-mu.vercel.app'
+    ? '.hanseroland.com'
     : 'localhost';
 
   res.clearCookie("token", {

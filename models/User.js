@@ -17,14 +17,23 @@ const userSchema = new mongoose.Schema({
     required: true,
     minlength: 6,
   },
-  profilePicture:{
+  profilePicture: {
     type: String,
     required: false,
   },
   isAdmin: {
     type: Boolean,
-    default:false,
+    default: false,
   },
+  activated: {
+    type: Boolean,
+    default: false,
+  },
+  activationToken: {
+    type: String,
+  },
+  resetPasswordToken: String,
+  resetPasswordExpires: Date,
   resumes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Resume' }],
 },
   {

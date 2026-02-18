@@ -54,7 +54,10 @@ router.post('/register', async (req, res) => {
 
     const savedUser = await newUser.save();
 
-    const activationUrl = `${process.env.CORS_ORIGIN_ONLINE}/activate/${activationToken}`;
+    //const activationUrl = `${process.env.CORS_ORIGIN_ONLINE}/activate/${activationToken}`;
+    const activationUrl = process.env.NODE_ENV === 'production'
+      ? `${process.env.CORS_ORIGIN_ONLINE}/activate/${activationToken}`
+      : `${process.env.LOCALHOST}/activate/${activationToken}`;
 
     await sendActivationEmail(newUser.email, newUser.name, activationUrl);
 
@@ -221,7 +224,10 @@ router.post('/forgot-password', async (req, res) => {
 
     await user.save();
 
-    const resetUrl = `https://resume.hanseroland.com/reset-password/${resetToken}`;
+    //const resetUrl = `${process.env.CORS_ORIGIN_ONLINE}/reset-password/${resetToken}`; 
+    const resetUrl = process.env.NODE_ENV === 'production'
+      ? `${process.env.CORS_ORIGIN_ONLINE}/reset-password/${resetToken}`
+      : `${process.env.LOCALHOST}/reset-password/${resetToken}`;
     //const resetUrl = `${req.protocol}://${req.get('host')}/api/auth/reset-password/${resetToken}`;
 
     // Utilise la nouvelle fonction d'envoi d'e-mail

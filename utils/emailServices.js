@@ -5,14 +5,14 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-// ✅ Mise à jour de la configuration du transporteur Nodemailer pour Gandi
+// ✅ Mise à jour de la configuration du transporteur Nodemailer pour LWS
 const transporter = nodemailer.createTransport({
-    host: process.env.GANDI_EMAIL_HOST,
-    port: process.env.GANDI_EMAIL_PORT,
-    secure: process.env.GANDI_EMAIL_SECURE === 'true', // `true` pour le port 465 (SSL/TLS)
+    host: process.env.LWS_EMAIL_HOST,
+    port: process.env.LWS_EMAIL_PORT,
+    secure: process.env.LWS_EMAIL_SECURE === 'true', // `true` pour le port 465 (SSL/TLS)
     auth: {
-        user: process.env.GANDI_EMAIL_USER,
-        pass: process.env.GANDI_EMAIL_PASS,
+        user: process.env.LWS_EMAIL_USER,
+        pass: process.env.LWS_EMAIL_PASS,
     },
 });
 
@@ -31,16 +31,16 @@ const emailFooter = `<div style="text-align: center; margin-top: 20px; color: #8
 const sendEmail = async (to, subject, htmlContent) => {
     try {
         const mailOptions = {
-            from: `"Nana Head Spa" <${process.env.GANDI_EMAIL_USER}>`, // Utilise ton adresse e-mail professionnelle ici
+            from: `"RESUME AI" <${process.env.LWS_EMAIL_USER}>`, // Utilise ton adresse e-mail professionnelle ici
             to,
             subject,
             html: `${emailHeader}${htmlContent}${emailFooter}`,
         };
 
         await transporter.sendMail(mailOptions);
-        console.log(`✅ Email envoyé à ${to} avec succès via Gandi.`);
+        console.log(`✅ Email envoyé à ${to} avec succès via LWS.`);
     } catch (error) {
-        console.error(`❌ Erreur lors de l'envoi de l'e-mail à ${to} via Gandi:`, error);
+        console.error(`❌ Erreur lors de l'envoi de l'e-mail à ${to} via LWS:`, error);
         // Ajoute ces lignes pour plus de détails sur l'erreur
         if (error.responseCode) {
             console.error(`Code de réponse SMTP: ${error.responseCode}`);
@@ -55,7 +55,7 @@ const sendActivationEmail = (to, clientName, activationUrl) => {
     const subject = 'Activez votre compte Resume AI';
     const htmlContent = `
         <div style="padding: 20px; font-family: Arial, sans-serif;">
-            <h2>Bonjour ${clientName || ''},</h2>
+            <h2>Bonjour ${clientName || ''},</h2> 
             <p>Merci pour votre inscription sur Resume AI.</p>
             <p>Veuillez cliquer sur le bouton ci-dessous pour activer votre compte :</p>
             <p style="text-align: center;">
@@ -90,5 +90,6 @@ const sendResetPasswordEmail = (to, clientName, resetUrl) => {
 };
 
 module.exports = {
-    sendResetPasswordEmail
+    sendResetPasswordEmail,
+    sendActivationEmail
 };

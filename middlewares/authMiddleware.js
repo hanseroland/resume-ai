@@ -1,13 +1,10 @@
 // authMiddleware.js
-
-const jwt = require('jsonwebtoken');
-const dotenv = require('dotenv');
 const User = require('../models/User');
-dotenv.config();
+const { verifyToken } = require('../utils/jwtService');
 
 module.exports = async function (req, res, next) {
     try {
-        // ✅ Lire le cookie nommé "token"
+
         const token = req.cookies?.token;
 
         if (!token) {
@@ -17,8 +14,7 @@ module.exports = async function (req, res, next) {
             });
         }
 
-        // ✅ Vérifier le token
-        const payload = jwt.verify(token, process.env.JWT_SECRET);
+        const payload = verifyToken(token);
 
 
         const user = await User.findById(payload.userId);

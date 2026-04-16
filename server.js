@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const cookieParser = require("cookie-parser");
+const errorHandler = require('./middlewares/errorMiddleware');
 
 
 dotenv.config();
@@ -17,7 +18,7 @@ app.use(
         verify: function (req, res, buf) {
             req.rawBody = buf;
         }
-    })
+    }) 
 );
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
@@ -66,7 +67,7 @@ app.use(`${api}/users`, usersRouter);
 app.use(`${api}/resumes`, resumeRouter);
 
 
-
+app.use(errorHandler);
 
 const mongoURL =
     env === 'development'

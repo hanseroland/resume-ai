@@ -13,7 +13,7 @@ const generateRefreshToken = (payload) => {
     });
   }
 
-const verifyAccessToken = (token) => {
+const verifyToken = (token) => {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET,);
 
@@ -30,5 +30,5 @@ const verifyAccessToken = (token) => {
   module.exports = {
   generateAccessToken,
   generateRefreshToken,
-  verifyAccessToken,
+  verifyToken,
 };

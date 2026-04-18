@@ -6,9 +6,6 @@ const { generateAccessToken } = require('../utils/jwtService');
 const asyncHandler = require('../middlewares/asyncHandler');
 const { validationResult } = require('express-validator');
 
-/**
- * Enregitrer un utilisateur
- */
 
 exports.register = asyncHandler( async(req, res) => {
    
@@ -216,4 +213,4 @@ exports.resetPassword = asyncHandler(async (req,res) => {
                 message: 'Mot de passe réinitialisé avec succès.' 
             });
       
-})
+});

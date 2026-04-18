@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const cookieParser = require("cookie-parser");
-const errorHandler = require('./middlewares/errorMiddleware');
+const errorHandler = require('./middlewares/errorHandler');
 
 
 dotenv.config();

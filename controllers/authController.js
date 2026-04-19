@@ -6,7 +6,6 @@ const { generateAccessToken } = require('../utils/jwtService');
 const asyncHandler = require('../middlewares/asyncHandler');
 const { validationResult } = require('express-validator');
 
-
 exports.register = asyncHandler( async(req, res) => {
    
         const { name, email, password, isAdmin } = req.body;

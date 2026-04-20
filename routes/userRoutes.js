@@ -3,31 +3,30 @@ const router = express.Router()
 const authMiddleware = require('../middlewares/authMiddleware');
 const adminMiddleware = require('../middlewares/adminMiddleware');
 const userController = require('../controllers/userController');
+const uploadOptions = require('../services/uploadService');
 
 
 
 
 
-// Afficher tous les utilisateurs
-router.get('/', authMiddleware,adminMiddleware, userController.getAllUsers);
-
-// Obtenir les infos de l'utilisateur en cours
-router.get('/current-user', authMiddleware, userController.getCurrentUser);
-
-// Statistiques groupées (Total, Admins, Récents)
+// 1. Routes de Statistiques (Admin seulement)
 router.get('/stats/global',authMiddleware,adminMiddleware, userController.getStats);
-
-// Anciennes routes de comptage (pour compatibilité avec ton front-end actuel)
 router.get('/count',authMiddleware,adminMiddleware, userController.getStats); 
 router.get('/recent',authMiddleware,adminMiddleware, userController.getStats);
 router.get('/users/count/admins',authMiddleware,adminMiddleware, userController.getStats);
 router.get('/users/count/standard',authMiddleware,adminMiddleware, userController.getStats);
 
-// Chercher par ID
-router.get('/:id', userController.getUserById);
-
+// Obtenir les infos de l'utilisateur en cours
+router.get('/current-user', authMiddleware, userController.getCurrentUser);
 // Chercher par Email
 router.get('/email/:email',authMiddleware,adminMiddleware, userController.getUserByEmail);
+
+
+// Afficher tous les utilisateurs
+router.get('/', authMiddleware,adminMiddleware, userController.getAllUsers);
+// Chercher par ID
+router.get('/:id',authMiddleware, userController.getUserById);
+
 
 // Création d'un compte
 router.post('/add',authMiddleware,adminMiddleware, userController.createUser);

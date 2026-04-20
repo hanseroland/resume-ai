@@ -6,6 +6,7 @@ const { generateToken } = require('../utils/jwtService');
 const asyncHandler = require('../middlewares/asyncHandler');
 const { validationResult } = require('express-validator');
 const RefreshTokenModel = require('../models/RefreshTokenModel');
+const refreshTokenService = require('../services/refreshTokenService');
 
 exports.register = asyncHandler( async(req, res) => {
    
@@ -86,7 +87,7 @@ exports.login = asyncHandler(async (req, res) => {
         await newRefreshToken.save();
         
 
-        const cookieDomain = process.env.NODE_ENV === 'production' ? '.hanseroland.com' : 'localhost';
+        const cookieDomain = process.env.NODE_ENV === 'production' ? `${proecess.env.BASE_DOMAIN}` : 'localhost';
 
         // --- COOKIE ACCESS TOKEN ---
         res.cookie('token', token, {
@@ -125,7 +126,7 @@ exports.logout = asyncHandler(async (req, res) => {
     }
 
     const cookieDomain = process.env.NODE_ENV === 'production'
-        ? '.hanseroland.com'
+        ? `${proecess.env.BASE_DOMAIN}`
         : 'localhost';
 
     
@@ -252,3 +253,48 @@ exports.resetPassword = asyncHandler(async (req,res) => {
             });
       
 });
+
+exports.refreshToken = asyncHandler(async (req,res) => {
+    const { refreshToken } = req.cookies;
+
+    if (!refreshToken) {
+        return res.status(401).json({ 
+            success: false, 
+            message: "Session expirée." 
+        });
+    }
+
+    const tokenDoc = await refreshTokenService.verifyAndRotateToken(refreshToken);
+
+    if (!tokenDoc) {
+        return res.status(401).json({ 
+            success: false, 
+            message: "Token invalide ou expiré." 
+        });
+    }
+
+    const user = await User.findById(tokenDoc.userId);
+    if (!user) return res.status(404).json({ 
+        success: false, 
+        message: "Utilisateur introuvable." 
+    });
+
+    const tokenPayload = { userId: user._id, isAdmin: user.isAdmin };
+    const newToken = generateToken(tokenPayload, process.env.JWT_SECRET, process.env.JWT_EXPIRES_IN);
+
+    const cookieDomain = process.env.NODE_ENV === 'production' 
+        ? `${proecess.env.BASE_DOMAIN}` 
+        : 'localhost';
+
+    res.cookie('token', newToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+        maxAge: 24 * 60 * 60 * 1000,
+        path: '/',
+        domain: cookieDomain
+    });
+
+    res.status(200).json({ success: true, message: "Accès renouvelé." });
+
+})

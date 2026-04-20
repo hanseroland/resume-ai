@@ -14,6 +14,7 @@ exports.getCurrentUser = asyncHandler(async (req, res) => {
     res.status(200).json({ success: true, data: user });
 });
 
+
 exports.getStats = asyncHandler(async (req, res) => {
     const [total, admins, recent] = await Promise.all([
         userService.count(),

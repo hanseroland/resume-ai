@@ -14,6 +14,8 @@ exports.findById = async (id) => {
 
 exports.findByEmail = async (email) => {
     const user = User.findOne({email:email}).select('-password');
+    if (!user) throw new Error('Utilisateur introuvable');
+    return user;
 }
 
 exports.count = async (filter = {}) => {

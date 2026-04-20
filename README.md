@@ -243,9 +243,9 @@ ai-resume/
 │   │
 │   ├── server.js                    # Point d'entrée
 │   ├── package.json
+|   ├── package-lock.json
 │   └── .env                         # Variables d'environnement
-|     |
-    ├── package.json                 # Scripts globaux (root)
+|   |
     └── README.md
 
 ```

@@ -18,8 +18,6 @@ router.get('/users/count/standard',authMiddleware,adminMiddleware, userControlle
 
 // Obtenir les infos de l'utilisateur en cours
 router.get('/current-user', authMiddleware, userController.getCurrentUser);
-// Chercher par Email
-router.get('/email/:email',authMiddleware,adminMiddleware, userController.getUserByEmail);
 
 
 // Afficher tous les utilisateurs

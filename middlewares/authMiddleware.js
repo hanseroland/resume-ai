@@ -14,7 +14,7 @@ module.exports = async function (req, res, next) {
             });
         }
 
-        const payload = verifyToken(token);
+        const payload = verifyToken(token, process.env.JWT_SECRET);
 
 
         const user = await User.findById(payload.userId);

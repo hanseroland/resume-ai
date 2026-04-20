@@ -244,28 +244,10 @@ ai-resume/
 │   ├── server.js                    # Point d'entrée
 │   ├── package.json
 │   └── .env                         # Variables d'environnement
-│
-├── client/                          # Frontend (React + Vite)
-│   ├── src/
-│   │   ├── components/              # Composants React
-│   │   ├── pages/                   # Pages
-│   │   ├── context/                 # Context API
-│   │   ├── redux/                   # Redux slices (optionnel)
-│   │   ├── api/                     # Appels API
-│   │   ├── theme.js                 # Thème global
-│   │   └── App.jsx
-│   │
-│   ├── public/                      # Assets statiques
-│   ├── vite.config.js               # Config Vite
-│   ├── vercel.json                  # Config déploiement Vercel
-│   ├── package.json
-│   └── index.html
-│
-├── .github/
-│   └── copilot-instructions.md      # Directives pour les agents IA
-│
-├── package.json                     # Scripts globaux (root)
-└── README.md
+|     |
+    ├── package.json                 # Scripts globaux (root)
+    └── README.md
+
 ```
 
 ---

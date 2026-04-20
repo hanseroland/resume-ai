@@ -2,9 +2,10 @@ const User = require('../models/User');
 const { sendResetPasswordEmail, sendActivationEmail } = require('../utils/emailServices');
 const { generateRandomToken, cryptoHash } = require('../utils/cryptoService');
 const { hashPassword, comparePassword } = require('../utils/passwordService');
-const { generateAccessToken } = require('../utils/jwtService');
+const { generateToken } = require('../utils/jwtService');
 const asyncHandler = require('../middlewares/asyncHandler');
 const { validationResult } = require('express-validator');
+const RefreshTokenModel = require('../models/RefreshTokenModel');
 
 exports.register = asyncHandler( async(req, res) => {
    
@@ -70,15 +71,39 @@ exports.login = asyncHandler(async (req, res) => {
                         }
                     );
         }
-        const token = generateAccessToken({userId: user._id, isAdmin: user.isAdmin})
+        const tokenPayload = {userId: user._id, isAdmin: user.isAdmin};
+        const token = generateToken(tokenPayload,process.env.JWT_SECRET,process.env.JWT_EXPIRES_IN)
+
+        const refreshToken = generateRandomToken();
+        const hashedRefreshToken = cryptoHash(refreshToken);
+
+        const newRefreshToken = new RefreshTokenModel({
+                token: hashedRefreshToken,
+                userId: user._id,
+                expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 jours
+            });
+        
+        await newRefreshToken.save();
+        
 
         const cookieDomain = process.env.NODE_ENV === 'production' ? '.hanseroland.com' : 'localhost';
 
+        // --- COOKIE ACCESS TOKEN ---
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
             expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+            path: '/',
+            domain: cookieDomain
+        });
+
+        // --- COOKIE REFRESH TOKEN ---
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+            expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 jours
             path: '/',
             domain: cookieDomain
         });
@@ -91,17 +116,31 @@ exports.login = asyncHandler(async (req, res) => {
 });
 
 exports.logout = asyncHandler(async (req, res) => {
+    const { refreshToken } = req.cookies;
+
+    // On supprime le Refresh Token de la base de données
+    if (refreshToken) {
+        const hashed = cryptoHash(refreshToken);
+        await RefreshTokenModel.deleteOne({ token: hashed });
+    }
+
     const cookieDomain = process.env.NODE_ENV === 'production'
         ? '.hanseroland.com'
         : 'localhost';
 
-    res.clearCookie("token", {
+    
+    // On efface les deux cookies
+    const cookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
         domain: cookieDomain,
         path: '/'
-    });
+    };
+
+    res.clearCookie("token", cookieOptions);
+    res.clearCookie("refreshToken", cookieOptions);
+    
     res.status(200).json({ success: true, message: "Déconnecté." });
 });
 

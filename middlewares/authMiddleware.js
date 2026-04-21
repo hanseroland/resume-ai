@@ -10,14 +10,24 @@ module.exports = async function (req, res, next) {
         if (!token) {
             return res.status(401).json({
                 success: false,
-                message: 'Token manquant (non trouvé dans le cookie)',
+                message: 'Non autorisé : Token manquant',
             });
         }
 
         const payload = verifyToken(token, process.env.JWT_SECRET);
 
+        if (!payload) {
+            // Si le token est expiré ou invalide, on renvoie 401.
+            // Le front-end interceptera ce 401 pour appeler /refresh-token
+            return res.status(401).json({
+                success: false,
+                message: 'Session expirée ou token invalide',
+                code: 'TOKEN_EXPIRED' // pour aider le front-end
+            });
+        }
 
-        const user = await User.findById(payload.userId);
+
+        const user = await User.findById(payload.userId).select('-password');;
 
         if (!user) {
             return res.status(404).json({
@@ -25,14 +35,14 @@ module.exports = async function (req, res, next) {
                 message: 'Utilisateur introuvable.',
             });
         }
-        req.user = { userId: payload.userId, role: user.role };
+        req.user = { userId: payload.userId, isAdmin: user.isAdmin };
 
         next();
     } catch (error) {
         console.error("Middleware Erreur DÉTAILLÉE:", error);
         return res.status(401).send({
             success: false,
-            message: `Authentication failed: ${error.message}`
+            message: `Échec de l\'authentification`
         });
     }
 };

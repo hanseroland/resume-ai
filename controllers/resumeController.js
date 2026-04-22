@@ -5,6 +5,12 @@ const aiService = require('../services/aiService');
 
 exports.model = asyncHandler(async (req,res)=> {})
 
+
+exports.findAll = asyncHandler(async (req,res)=> {
+    const resumes = await resumeService.findAll();
+    res.status(200).json({ success: true, data: resumes });
+});
+
 exports.getById = asyncHandler(async (req,res)=> {
     const resumeId = req.params.id;
     const resume = await resumeService.getResumeById(resumeId);

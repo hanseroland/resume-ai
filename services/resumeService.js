@@ -7,7 +7,7 @@ exports.getResumeById = async (id) => {
     return resume;
 };
 
-exports.getResumes = async () => {
+exports.findAll = async () => {
     return await Resume.find().sort({'createdAt':-1});
 };
 

@@ -62,6 +62,7 @@ exports.login = asyncHandler(async (req, res) => {
         const user = await User.findOne({ email });
 
         const testPassword = comparePassword(password,user.password);
+        console.log("Login Bien appélé")
 
         if (!user || !testPassword) {
             return res.status(401)

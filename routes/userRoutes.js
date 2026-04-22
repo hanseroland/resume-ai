@@ -22,15 +22,24 @@ router.get('/current-user', authMiddleware, userController.getCurrentUser);
 
 // Afficher tous les utilisateurs
 router.get('/', authMiddleware,adminMiddleware, userController.getAllUsers);
+
+// Création d'un compte
+router.post('/',authMiddleware,adminMiddleware, userController.createUser);
+
+// Modifier les informations textuelles d'un utilisateur
+router.put('/:id',authMiddleware, userController.updateUser);
+
 // Chercher par ID
 router.get('/:id',authMiddleware, userController.getUserById);
 
 
-// Création d'un compte
-router.post('/add',authMiddleware,adminMiddleware, userController.createUser);
+// Supprimer un utilisateur
+router.delete('/:id',authMiddleware,adminMiddleware, userController.deleteUser)
 
-// Modifier les informations textuelles d'un utilisateur
-router.put('/:id',authMiddleware, userController.updateUser);
+
+
+
+
 
 // Mise à jour spécifique de la photo de profil
 router.put('/update-picture/:id',authMiddleware, 
@@ -38,8 +47,6 @@ router.put('/update-picture/:id',authMiddleware,
     userController.updatePicture
 );
 
-
-// Supprimer un utilisateur
-router.delete('/:id',authMiddleware,adminMiddleware, userController.deleteUser);
+;
 
 module.exports = router;

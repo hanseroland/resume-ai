@@ -46,9 +46,9 @@ const callGemini = async (prompt, isJson = false) => {
         : prompt;
 
     console.log('full prompt :', finalPrompt)
-    const model = await genAI.models.generateContent({ 
+    const result = await genAI.models.generateContent({ 
         model: GEMINI_MODEL,
-        contents: finalPrompt,
+        contents: [{ role: 'user', parts: [{ text: finalPrompt }] }],
         config: {
             thinkingConfig: {
             thinkingLevel: ThinkingLevel.LOW,
@@ -56,9 +56,21 @@ const callGemini = async (prompt, isJson = false) => {
         }
     });
 
-    //const result = await model.generateContent(finalPrompt);
-    const text = model.text;
-    return isJson ? JSON.parse(text) : text;
+    // Extraction du texte (selon la version de ton SDK, vérifie si c'est result.text ou result.response.text())
+    let text = result.text || result.response?.text?.() || "";
+
+    if (isJson) {
+        // NETTOYAGE : Enlève les balises ```json ou ``` et les espaces inutiles
+        const cleanJson = text.replace(/```json|```/g, "").trim();
+        try {
+            return JSON.parse(cleanJson);
+        } catch (e) {
+            console.error("Erreur Parsing JSON IA. Texte brut reçu :", text);
+            throw new Error("L'IA a renvoyé un format illisible.");
+        }
+    }
+    
+    return text;
 };
 
 exports.generateText = async (prompt, provider) => {

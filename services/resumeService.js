@@ -8,7 +8,7 @@ exports.getResumeById = async (id) => {
 };
 
 exports.getResumes = async () => {
-    const resumes = await Resume.find().sort({'createdAt':-1});
+    return await Resume.find().sort({'createdAt':-1});
 };
 
 

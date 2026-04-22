@@ -32,6 +32,9 @@ const userSchema = new mongoose.Schema({
   activationToken: {
     type: String,
   },
+  activationTokenExpires: {
+    type: Date,
+  },
   resetPasswordToken: String,
   resetPasswordExpires: Date,
   resumes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Resume' }],

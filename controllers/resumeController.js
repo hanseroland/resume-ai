@@ -3,6 +3,7 @@ const resumeService = require('../services/resumeService');
 const aiService = require('../services/aiService');
 
 
+
 exports.model = asyncHandler(async (req,res)=> {})
 
 
@@ -119,6 +120,26 @@ exports.updateSummary = asyncHandler(async (req, res) => {
     });
 });
 
+
+//
+exports.updateColorTheme = asyncHandler(async (req, res) => {
+    console.log('couleur', req.body);
+
+   const {themeColor} = req.body;
+
+    console.log('couleur',themeColor);
+
+   const updatedResume = await resumeService.updateResumeColor(
+        req.params.resumeId, 
+       themeColor
+    );
+
+    res.status(200).json({
+        success: true,
+        data: updatedResume
+    });
+});
+ 
 
 /**
  * Géner du texte avec l'IA

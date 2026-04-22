@@ -49,7 +49,7 @@ exports.countByUserId = async (userId) => {
 
 exports.countAll = async () => {
     return await Resume.countDocuments();
-};
+}; 
 
 exports.updateResumeField = async (resumeId, fieldData) => {
     const updatedResume = await Resume.findByIdAndUpdate(
@@ -58,6 +58,22 @@ exports.updateResumeField = async (resumeId, fieldData) => {
         { new: true, runValidators: true }
     );
     if (!updatedResume) throw new Error('CV introuvable pour mise à jour');
+    return updatedResume;
+};
+
+exports.updateResumeColor = async (resumeId, colorData) => {
+   
+    const finalColor = typeof colorData === 'object' ? colorData.themeColor : colorData;
+
+    if (!finalColor) throw new Error('La couleur est requise');
+
+    const updatedResume = await Resume.findByIdAndUpdate(
+        resumeId,
+        { $set: { themeColor: finalColor } },
+        { new: true, runValidators: true }
+    );
+
+    if (!updatedResume) throw new Error('CV introuvable');
     return updatedResume;
 };
 

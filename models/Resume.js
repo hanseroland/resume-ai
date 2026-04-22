@@ -6,6 +6,10 @@ const resumeSchema = new mongoose.Schema({
   theme: { type: Number },
   title: { type: String },
   categorie: { type: String },
+  themeColor: {
+    type: String,
+    default: '#000000'
+  },
   personalInfo: {
     fullName: { type: String },
     jobTitle: { type: String, },

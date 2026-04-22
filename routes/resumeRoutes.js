@@ -74,6 +74,8 @@ router.delete('/:id', resumeController.delete);
  * MISES À JOUR PARTIELLES (Sections du CV)
  */
 
+
+
 // Route pour mettre à jour les détails personnels d'un CV
 router.put('/:resumeId/personal-info',resumeController.updatePersonalInfo);
 
@@ -104,6 +106,9 @@ router.put('/:resumeId/hobbies', resumeController.updateHobbies);
 
 // Route pour mettre à jour les langue d'un CV
 router.put('/:resumeId/languages', resumeController.updateLanguages);
+
+// routes/resumeRoutes.js
+router.put('/:resumeId/color', authMiddleware, resumeController.updateColorTheme);
 
 
 module.exports = router;

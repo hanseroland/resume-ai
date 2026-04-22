@@ -151,6 +151,8 @@ exports.activate = async (req,res) => {
     
         const activationToken = req.params.token;
         const hashedToken = cryptoHash(activationToken)
+
+       
     
         const user = await User.findOne({
           activationToken: hashedToken,
@@ -158,7 +160,7 @@ exports.activate = async (req,res) => {
         });
     
         if (!user) {
-          return res.status(400).send({
+          return res.status(400).json({
             success: false,
             message: 'Lien d’activation invalide ou expiré.',
           });
@@ -170,7 +172,7 @@ exports.activate = async (req,res) => {
     
         await user.save();
     
-        res.status(200).send({
+        res.status(200).json({
           success: true,
           message: 'Compte activé avec succès. Vous pouvez maintenant vous connecter.',
         });

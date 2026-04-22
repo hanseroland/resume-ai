@@ -41,17 +41,19 @@ router.post('/login',loginLimiter, authController.login);
  */
 router.post('/logout/',authController.logout);
 
-/**
- * @route   GET /api/v1/auth/activate/:token
- * @desc    Activer le compte via le lien email
- */
-router.get('/activate/:token', authController.activate);
 
 /**
  * @route   POST /api/v1/auth/forgot-password
  * @desc    Demander un lien de réinitialisation
  */
 router.post('/forgot-password', authController.forgotPassword);
+
+
+/**
+ * @route   GET /api/v1/auth/activate/:token
+ * @desc    Activer le compte via le lien email
+ */
+router.get('/activate/:token', authController.activate);
 
 /**
  * @route   PUT /api/v1/auth/reset-password/:token

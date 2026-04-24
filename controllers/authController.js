@@ -88,7 +88,7 @@ exports.login = asyncHandler(async (req, res) => {
         await newRefreshToken.save();
         
 
-        const cookieDomain = process.env.NODE_ENV === 'production' ? `${proecess.env.BASE_DOMAIN}` : 'localhost';
+        const cookieDomain = process.env.NODE_ENV === 'production' ? `${process.env.BASE_DOMAIN}` : 'localhost';
 
         // --- COOKIE ACCESS TOKEN ---
         res.cookie('token', token, {
@@ -127,7 +127,7 @@ exports.logout = asyncHandler(async (req, res) => {
     }
 
     const cookieDomain = process.env.NODE_ENV === 'production'
-        ? `${proecess.env.BASE_DOMAIN}`
+        ? `${process.env.BASE_DOMAIN}`
         : 'localhost';
 
     
@@ -286,7 +286,7 @@ exports.refreshToken = asyncHandler(async (req,res) => {
     const newToken = generateToken(tokenPayload, process.env.JWT_SECRET, process.env.JWT_EXPIRES_IN);
 
     const cookieDomain = process.env.NODE_ENV === 'production' 
-        ? `${proecess.env.BASE_DOMAIN}` 
+        ? `${process.env.BASE_DOMAIN}` 
         : 'localhost';
 
     res.cookie('token', newToken, {

@@ -12,6 +12,7 @@ dotenv.config();
 const api = process.env.API_URL;
 const env = process.env.NODE_ENV;
 
+app.set('trust proxy', 1);
 
 app.use(
     bodyParser.json({
